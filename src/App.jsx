@@ -1,13 +1,14 @@
+import { OrbitControls } from '@react-three/drei'
 
-function App() {
+import Waves from './Waves'
+
+export default function App() {
 
   return (
     <>
-     
+      <OrbitControls makeDefault/>
 
-      
+      <Waves/>      
     </>
   )
 }
-
-export default App
