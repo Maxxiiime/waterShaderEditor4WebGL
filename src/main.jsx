@@ -11,7 +11,7 @@ root.render(
                 fov: 45,
                 near: 0.2,
                 far: 200,
-                position: [3, 2, 6],
+                position: [2, 1, 2],
             } }
         >
             <App />
