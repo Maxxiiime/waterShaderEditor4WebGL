@@ -23,3 +23,7 @@ body,
     border-radius: 20px;
     background: #000000;
 }
+
+#leva__root > * {
+    width: 350px;
+  }
