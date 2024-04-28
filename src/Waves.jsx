@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useControls } from 'leva'
 
 import * as THREE from 'three'
@@ -7,13 +7,16 @@ import * as THREE from 'three'
 import waterVertexShader from './shaders/water/vertex.glsl'
 import waterFragmentShader from './shaders/water/fragment.glsl'
 
+
 const debugObject = {}
-debugObject.depthColor = '#1772a7'
-debugObject.surfaceColor = '#5eb7df'
+debugObject.depthColor = '#64b9e5'
+debugObject.surfaceColor = '#cde2e5'
 
 
 export default function Waves() {
 
+
+    const scene = useThree((state) => state.scene)
     const planeRef = useRef();
 
     /**
@@ -22,28 +25,28 @@ export default function Waves() {
 
     const { bigWavesElevation, bigWavesFrequencyX, bigWavesFrequencyY, bigWavesSpeed } = useControls('Big Waves',{
       bigWavesElevation: {
-        value: 0.2,
+        value: 0.4,
         min: 0,
         max: 1,
         step: 0.001,
       },
       bigWavesFrequencyX: 
       { 
-        value: 4.0,
+        value: 0.2,
         min: 0,
-        max: 10,
+        max: 2,
         step: 0.01,
       },
       bigWavesFrequencyY: {
-        value: 1.5,
+        value: 0.4,
         min: 0,
-        max: 10,
+        max: 2,
         step: 0.01,
 
       },      
       
       bigWavesSpeed: {
-        value: 0.75, 
+        value: 0.5, 
         min: 0,
         max: 4,
         step: 0.001
@@ -79,14 +82,14 @@ export default function Waves() {
 
     const { depthColor, surfaceColor, colorOffset, colorMultiplier } = useControls('Water colors', {
       depthColor: {
-        r: 23,
-        g: 14,
-        b: 167
+        r: 100,
+        g: 185,
+        b: 229
       },
       surfaceColor: {
-        r: 94,
-        g: 183,
-        b: 223,
+        r: 205,
+        g: 226,
+        b: 229,
       },
       colorOffset: {
         value: 0.05,
@@ -101,6 +104,29 @@ export default function Waves() {
         step: 0.001,
       }
     })
+
+    const { efogNear, efogFar, efogColor } = useControls('Fog', {
+      efogNear: {
+        value: 30,
+        min: 0,
+        max: 50,
+        step: 0.1,
+      },
+      efogFar: {
+        value: 65,
+        min: 10,
+        max: 100,
+        step: 0.1,
+      },
+
+      efogColor: {
+        r: 170,
+        g: 174,
+        b: 170,
+      }
+    })
+
+    scene.fog = new THREE.Fog(new THREE.Color(`rgb(${efogColor.r}, ${efogColor.g}, ${efogColor.b})`), efogNear, efogFar)
 
     const waterShaderMaterial = {
       vertexShader: waterVertexShader,
@@ -122,10 +148,13 @@ export default function Waves() {
 
         uColorOffset: { value: colorOffset },
         uColorMultiplier: { value: colorMultiplier },
-    
+
+        fogNear: { value: efogNear },
+        fogFar: { value: efogFar },
+        fogColor: { value: new THREE.Color(`rgb(${efogColor.r}, ${efogColor.g}, ${efogColor.b})`) }
+
       }
-    } 
-    
+    }     
     /**
      * Update uTime
      */
@@ -134,15 +163,25 @@ export default function Waves() {
         planeRef.current.material.uniforms.uTime.value = clock.getElapsedTime();
       });
 
-    return <>
+    return <>     
       <pointLight position={[5, 5, 5]} />
-        <mesh rotation-x={ - Math.PI * 0.5 } ref={ planeRef }>
-            <planeGeometry args={ [2, 2, 512, 512] } />
-            <shaderMaterial 
-                attach="material" 
-                args={[waterShaderMaterial]}
-                
-            />
-        </mesh>
+      <mesh rotation-x={ - Math.PI * 0.5 } ref={ planeRef }>
+        <planeGeometry 
+          args={ [100, 100, 512, 512] } 
+          position={ [0, 0, 0] }  
+        />
+        <shaderMaterial 
+          attach="material" 
+          args={[waterShaderMaterial]}  
+          fog={true}   
+        />
+      </mesh>
+
+
+
+
+
+
+        
     </>
 }
